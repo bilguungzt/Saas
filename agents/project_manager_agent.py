@@ -83,12 +83,39 @@ class ProjectManagerAgent:
         before any other code runs.**
         **CRITICAL RULE: When generating YAML files (like 'docker-compose.yml'), 
         you MUST ensure the indentation uses 2 spaces and the syntax is perfect.**
+        **CRITICAL RULE: When writing Python code inside the 'app/' package,
+        you MUST use relative imports (e.g., 'from . import models').**
 
+        **CRITICAL RULE: The 'database.py' file, 'requirements.txt', and 
+        '.env' file must all be consistent. If you use 'psycopg2-binary' 
+        in requirements, the DATABASE_URL must start with 'postgresql+psycopg2://'.**
         - Use 'gemini' for: High-level architecture, complex logic, or critical files.
         - Use 'local' (Qwen 7B) for: Simple, boilerplate files (like Dockerfiles, requirements.txt,
           or simple utility functions).
+        **CRITICAL RULE: When writing Python code inside the 'app/' package,
+        you MUST use relative imports (e.g., 'from . import models').**
 
+        **CRITICAL RULE: You MUST ensure all database credentials (username, 
+        password, dbname) are consistent across the '.env.example', 
+        'docker-compose.yml', and 'database.py' files. 
+        Use 'myuser', 'mypassword', and 'mydatabase'.**
+
+        **CRITICAL RULE: All Pydantic models in 'schemas.py' MUST 
+        use Pydantic V2 config (model_config = {{"from_attributes": True}}) 
+        instead of the old V1 'Config' class with 'orm_mode'.**
         **Example JSON Format:**
+        **CRITICAL RULE: When writing Python code inside the 'app/' package,
+        you MUST use relative imports (e.g., 'from . import models').**
+
+        **CRITICAL RULE: The 'database.py' file, 'requirements.txt', and 
+        '.env' file must all be consistent. If you use 'psycopg2-binary' 
+        in requirements, the DATABASE_URL must start with 'postgresql+psycopg2://'.**
+
+        **CRITICAL RULE: The 'requirements.txt' file MUST include
+        'python-dotenv' and 'pydantic-settings' for all projects.**
+
+        **CRITICAL RULE: If the project involves users or passwords, 
+        the 'requirements.txt' file MUST also include 'passlib[bcrypt]'.**
         [
           {{"task_prompt": "Generate a 'requirements.txt' file for a FastAPI app, including 'fastapi', 'uvicorn', 'sqlalchemy', and 'psycopg2-binary'. IMPORTANT: Your response MUST be only the raw, valid content for this file. Do not add *any* other text, explanations, comments, or markdown fences like ```.", "output_file": "app/requirements.txt", "model": "local"}}
         ]
