@@ -3,7 +3,7 @@ import ollama
 import google.generativeai as genai
 from dotenv import load_dotenv
 import time
-from typing import Union  # <-- This is for Python 3.9
+from typing import Union  # For Python 3.9 compatibility
 
 load_dotenv()
 
@@ -55,10 +55,22 @@ class SmartAIRouter:
             try:
                 model = genai.GenerativeModel('gemini-2.5-pro')
                 response = model.generate_content(prompt)
+                
+                # --- !!! NEW SAFETY CHECK !!! ---
+                # Check if the response is empty *before* trying to access .text
+                # This catches safety/recitation blocks (finish_reason = 4)
+                if not response.parts:
+                    print(f"---! ERROR in Gemini query: Model returned no content. ---")
+                    print(f"    Finish Reason: {response.candidates[0].finish_reason}")
+                    print(f"    This often means the prompt was blocked by the safety filter.")
+                    return None
+                # --- END OF NEW CHECK ---
+
                 clean_response = response.text.strip().lstrip('```python').lstrip('```').rstrip('```')
                 return clean_response # Success!
             
             except Exception as e:
+                # Check if this is the rate limit error
                 if "429" in str(e):
                     print(f"---! [Router] Gemini Rate Limit Hit. {retries} retries left. ---")
                     print(f"    ...Sleeping for {wait_time} seconds...")
@@ -66,6 +78,7 @@ class SmartAIRouter:
                     retries -= 1
                     wait_time *= 1.5
                 else:
+                    # It's a different, unexpected error
                     print(f"---! ERROR in Gemini query: {e} !---")
                     return None
         
