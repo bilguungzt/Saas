@@ -1,0 +1,30 @@
+# Note: The 'version' tag is obsolete, so we remove it.
+services:
+  # The database service
+  db:
+    image: postgres:16-alpine
+    container_name: my_micro_saas_db
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydatabase
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # The web app service
+  app:
+    build: . # <-- This tells it to build the Dockerfile in this folder
+    container_name: my_micro_saas_app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db # <-- This makes sure the database starts first
+    environment:
+      # This tells your FastAPI app how to find the database
+      # Your database.py file (when generated) MUST use these names
+      DATABASE_URL: "postgresql+asyncpg://myuser:mypassword@db/mydatabase"
+
+volumes:
+  postgres_data:

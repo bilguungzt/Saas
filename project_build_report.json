@@ -1,0 +1,74 @@
+{
+  "plan": [
+    {
+      "task_prompt": "Create a '.env.example' file to store environment variables for a FastAPI application with a PostgreSQL database. It should include placeholders for POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB, POSTGRES_SERVER, and DATABASE_URL formatted for SQLAlchemy: 'postgresql://USER:PASSWORD@SERVER/DB'. IMPORTANT: Your response MUST be only the raw, valid code for this file. Do not add *any* other text, explanations, comments, or markdown fences like ```.",
+      "output_file": ".env.example",
+      "model": "local"
+    },
+    {
+      "task_prompt": "Generate a standard Python '.gitignore' file. It should include common directories and files to ignore, such as '__pycache__', '.env', 'venv/', '*.pyc', and IDE-specific folders like '.idea/' and '.vscode/'. IMPORTANT: Your response MUST be only the raw, valid code for this file. Do not add *any* other text, explanations, comments, or markdown fences like ```.",
+      "output_file": ".gitignore",
+      "model": "local"
+    },
+    {
+      "task_prompt": "Generate a 'requirements.txt' file for a FastAPI application. It must include the following packages without any version pinning: 'fastapi', 'uvicorn', 'sqlalchemy', 'psycopg2-binary', 'passlib[bcrypt]', 'python-dotenv', and 'pydantic[email]'. IMPORTANT: Your response MUST be only the raw, valid code for this file. Do not add *any* other text, explanations, comments, or markdown fences like ```.",
+      "output_file": "requirements.txt",
+      "model": "local"
+    },
+    {
+      "task_prompt": "Create a 'docker-compose.yml' file using version '3.8'. Define two services: 'db' and 'web'. The 'db' service should use the 'postgres:13' image, have a volume named 'postgres_data' for '/var/lib/postgresql/data', and load environment variables from a './.env' file. The 'web' service should build from the current directory, map port '8000:8000', depend on the 'db' service, and also load environment variables from './.env'. Define the top-level 'volumes' key for 'postgres_data'. CRITICAL: Use exactly 2 spaces for indentation. IMPORTANT: Your response MUST be only the raw, valid code for this file. Do not add *any* other text, explanations, comments, or markdown fences like ```.",
+      "output_file": "docker-compose.yml",
+      "model": "gemini"
+    },
+    {
+      "task_prompt": "Create a 'Dockerfile' for a Python FastAPI application. Use the 'python:3.9-slim' base image. Set the working directory to '/app'. Copy the 'requirements.txt' file, install the dependencies using pip with '--no-cache-dir', then copy the rest of the application code. Expose port 8000. The final CMD should run the application using 'uvicorn' on host 0.0.0.0 and port 8000, pointing to 'main:app'. IMPORTANT: Your response MUST be only the raw, valid code for this file. Do not add *any* other text, explanations, comments, or markdown fences like ```.",
+      "output_file": "Dockerfile",
+      "model": "local"
+    },
+    {
+      "task_prompt": "Create a Python file named 'database.py'. It should configure the SQLAlchemy connection to a PostgreSQL database. Use 'os.getenv' to read the 'DATABASE_URL' from environment variables. Create the SQLAlchemy 'engine'. Create a 'SessionLocal' class using 'sessionmaker'. Create a 'Base' class using 'declarative_base()'. Also, create a dependency function 'get_db()' that yields a database session and ensures it's closed afterward. IMPORTANT: Your response MUST be only the raw, valid code for this file. Do not add *any* other text, explanations, comments, or markdown fences like ```.",
+      "output_file": "app/database.py",
+      "model": "gemini"
+    },
+    {
+      "task_prompt": "Create a Python file named 'models.py' for SQLAlchemy ORM models. Import necessary components from 'sqlalchemy'. Import the 'Base' from './database.py'. Define a 'User' model for a 'users' table with columns: 'id' (Integer, primary key, index), 'email' (String, unique, index), and 'hashed_password' (String). Define a 'Post' model for a 'posts' table with columns: 'id' (Integer, primary key, index), 'title' (String, index), 'content' (String), and 'owner_id' (Integer, ForeignKey to 'users.id'). Finally, establish a one-to-many relationship on the 'User' model called 'posts' which relates to the 'Post' model. IMPORTANT: Your response MUST be only the raw, valid code for this file. Do not add *any* other text, explanations, comments, or markdown fences like ```.",
+      "output_file": "app/models.py",
+      "model": "gemini"
+    },
+    {
+      "task_prompt": "Create a Python file named 'schemas.py' for Pydantic models. Import 'BaseModel' and 'EmailStr' from 'pydantic'. Create a 'PostBase' schema with 'title' (str) and 'content' (str). Create a 'PostCreate' schema that inherits from 'PostBase'. Create a 'Post' schema that inherits from 'PostBase' and adds 'id' (int) and 'owner_id' (int), with an inner 'Config' class setting 'orm_mode = True'. Create a 'UserBase' schema with 'email' (EmailStr). Create a 'UserCreate' schema inheriting from 'UserBase' with an added 'password' (str). Create a 'User' schema inheriting from 'UserBase' with 'id' (int) and an inner 'Config' class setting 'orm_mode = True'. IMPORTANT: Your response MUST be only the raw, valid code for this file. Do not add *any* other text, explanations, comments, or markdown fences like ```.",
+      "output_file": "app/schemas.py",
+      "model": "gemini"
+    },
+    {
+      "task_prompt": "Create a Python file named 'security.py'. Import 'CryptContext' from 'passlib.context'. Create an instance of 'CryptContext' with schemes=['bcrypt'] and deprecated='auto'. Create a function 'hash_password(password: str) -> str' that takes a plain text password and returns its bcrypt hash. IMPORTANT: Your response MUST be only the raw, valid code for this file. Do not add *any* other text, explanations, comments, or markdown fences like ```.",
+      "output_file": "app/security.py",
+      "model": "gemini"
+    },
+    {
+      "task_prompt": "Create a Python file named 'crud.py' for database operations. Import 'Session' from 'sqlalchemy.orm', and import from './models.py', './schemas.py', and './security.py'. Create a 'get_user_by_email(db: Session, email: str)' function that queries for a user by email. Create a 'create_user(db: Session, user: schemas.UserCreate)' function that first hashes the user's password using the 'hash_password' function, then creates a new 'models.User' instance and adds it to the database. Create a 'create_post(db: Session, post: schemas.PostCreate, user_id: int)' function that creates a 'models.Post' instance, associating it with the provided 'user_id', and adds it to the database. IMPORTANT: Your response MUST be only the raw, valid code for this file. Do not add *any* other text, explanations, comments, or markdown fences like ```.",
+      "output_file": "app/crud.py",
+      "model": "gemini"
+    },
+    {
+      "task_prompt": "Create the main application file 'main.py'. Import 'FastAPI', 'Depends', 'HTTPException'. From 'sqlalchemy.orm' import 'Session'. Import 'crud', 'models', 'schemas', and from 'database' import 'SessionLocal', 'engine', 'get_db'. Load environment variables using 'load_dotenv'. Call 'models.Base.metadata.create_all(bind=engine)' to create database tables. Instantiate the 'FastAPI' app. Create a '/users' endpoint using a POST method that takes a 'user: schemas.UserCreate' and a database session dependency. It should check if a user with that email already exists using 'crud.get_user_by_email' and raise a 400 error if so. Otherwise, it should create the user using 'crud.create_user'. Create a '/posts' endpoint using a POST method that takes a 'post: schemas.PostCreate' and a db session. For simplicity, hardcode a user_id of 1 when calling 'crud.create_post'. Both endpoints should return the created object. IMPORTANT: Your response MUST be only the raw, valid code for this file. Do not add *any* other text, explanations, comments, or markdown fences like ```.",
+      "output_file": "app/main.py",
+      "model": "gemini"
+    }
+  ],
+  "generated_files": [
+    ".env.example",
+    ".gitignore",
+    "requirements.txt",
+    "docker-compose.yml",
+    "Dockerfile",
+    "app/database.py",
+    "app/models.py",
+    "app/schemas.py",
+    "app/security.py",
+    "app/crud.py",
+    "app/main.py"
+  ],
+  "architecture": {},
+  "errors": []
+}
