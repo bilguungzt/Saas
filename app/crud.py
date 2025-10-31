@@ -25,3 +25,5 @@ def create_post(db: Session, post: schemas.PostCreate, user_id: int):
     db.commit()
     db.refresh(db_post)
     return db_post
+def get_posts(db: Session, skip: int = 0, limit: int = 10):
+    return db.query(models.Post).offset(skip).limit(limit).all()
