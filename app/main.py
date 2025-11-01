@@ -15,7 +15,17 @@ load_dotenv()
 
 models.Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
+app = FastAPI(
+    openapi_components={
+        "securitySchemes": {
+            "BearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
+    }
+)
 
 @app.post("/token", response_model=schemas.Token)
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
@@ -40,11 +50,11 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Email already registered")
     return crud.create_user(db=db, user=user)
 
-@app.post("/posts", response_model=schemas.Post)
+@app.post("/posts", response_model=schemas.Post, security=[{"BearerAuth": []}])
 def create_post(post: schemas.PostCreate, db: Session = Depends(get_db), current_user: schemas.User = Depends(security.get_current_user)):
     return crud.create_post(db=db, post=post, user_id=current_user.id)
 
-@app.get("/posts", response_model=List[schemas.Post])
+@app.get("/posts", response_model=List[schemas.Post], security=[{"BearerAuth": []}])
 def read_posts(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     posts = crud.get_posts(db, skip=skip, limit=limit)
     return posts
