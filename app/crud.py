@@ -10,6 +10,15 @@ def get_user_by_email(db: Session, email: str):
     return db.query(models.User).filter(models.User.email == email).first()
 
 
+def authenticate_user(db: Session, email: str, password: str):
+    user = get_user_by_email(db, email)
+    if not user:
+        return None
+    if not security.verify_password(password, user.hashed_password):
+        return None
+    return user
+
+
 def create_user(db: Session, user: schemas.UserCreate):
     hashed_password = security.hash_password(user.password)
     db_user = models.User(email=user.email, hashed_password=hashed_password)
@@ -20,7 +29,7 @@ def create_user(db: Session, user: schemas.UserCreate):
 
 
 def create_post(db: Session, post: schemas.PostCreate, user_id: int):
-    db_post = models.Post(**post.dict(), owner_id=user_id)
+    db_post = models.Post(**post.model_dump(), owner_id=user_id)
     db.add(db_post)
     db.commit()
     db.refresh(db_post)

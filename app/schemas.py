@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel, EmailStr
 
 class PostBase(BaseModel):
@@ -11,8 +12,7 @@ class Post(PostBase):
     id: int
     owner_id: int
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 class UserBase(BaseModel):
     email: EmailStr
@@ -23,5 +23,11 @@ class UserCreate(UserBase):
 class User(UserBase):
     id: int
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    email: Optional[str] = None
