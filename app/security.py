@@ -4,7 +4,7 @@ from typing import Optional
 
 from dotenv import load_dotenv
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
@@ -25,7 +25,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 if not SECRET_KEY:
     raise RuntimeError("SECRET_KEY is not set in .env file. Please generate one (e.g. `openssl rand -hex 32`)")
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = HTTPBearer()
 
 
 def hash_password(password: str) -> str:
@@ -47,7 +47,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     return encoded_jwt
 
 
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     from . import crud  # Local import to avoid circular dependency
 
     credentials_exception = HTTPException(
@@ -56,12 +56,13 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
+        token = credentials.credentials
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
         if email is None:
             raise credentials_exception
         token_data = schemas.TokenData(email=email)
-    except JWTError:
+    except (JWTError, AttributeError):
         raise credentials_exception
     user = crud.get_user_by_email(db, email=token_data.email)
     if user is None:
