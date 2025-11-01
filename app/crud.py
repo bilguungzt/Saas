@@ -28,8 +28,8 @@ def create_user(db: Session, user: schemas.UserCreate):
     return db_user
 
 
-def create_post(db: Session, post: schemas.PostCreate, user_id: int):
-    db_post = models.Post(**post.model_dump(), owner_id=user_id)
+def create_post(db: Session, post: schemas.PostCreate, owner_id: int):
+    db_post = models.Post(**post.model_dump(), owner_id=owner_id)
     db.add(db_post)
     db.commit()
     db.refresh(db_post)

@@ -52,9 +52,9 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
 @app.post("/posts", response_model=schemas.Post)
 def create_post(post: schemas.PostCreate, db: Session = Depends(get_db), current_user: schemas.User = Depends(security.get_current_user)):
-    return crud.create_post(db=db, post=post, user_id=current_user.id)
+    return crud.create_post(db=db, post=post, owner_id=current_user.id)
 
 @app.get("/posts", response_model=List[schemas.Post])
-def read_posts(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+def read_posts(skip: int = 0, limit: int = 10, db: Session = Depends(get_db), current_user: schemas.User = Depends(security.get_current_user)):
     posts = crud.get_posts(db, skip=skip, limit=limit)
     return posts
