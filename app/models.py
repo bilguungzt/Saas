@@ -1,5 +1,5 @@
 from sqlalchemy import Column, ForeignKey, Integer, String
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from .database import Base
 
@@ -7,9 +7,9 @@ from .database import Base
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True, index=True)
-    hashed_password = Column(String)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    email: Mapped[str] = mapped_column(String, unique=True, index=True)
+    hashed_password: Mapped[str] = mapped_column(String)
 
     posts = relationship("Post", back_populates="owner")
 
@@ -17,9 +17,9 @@ class User(Base):
 class Post(Base):
     __tablename__ = "posts"
 
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, index=True)
-    content = Column(String)
-    owner_id = Column(Integer, ForeignKey("users.id"))
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    title: Mapped[str] = mapped_column(String, index=True)
+    content: Mapped[str] = mapped_column(String)
+    owner_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
 
     owner = relationship("User", back_populates="posts")
