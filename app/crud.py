@@ -37,11 +37,13 @@ def create_post(db: Session, post: schemas.PostCreate, owner_id: int):
 
 
 def update_post(db: Session, post_id: int, post_update: schemas.PostUpdate, owner_id: int):
+    # Only fetch posts owned by the current user to enforce ownership checks.
     db_post = db.query(models.Post).filter(models.Post.id == post_id, models.Post.owner_id == owner_id).first()
     if not db_post:
         return None
 
     update_data = post_update.model_dump(exclude_unset=True)
+    # Apply only the fields included in the update payload.
     for field, value in update_data.items():
         setattr(db_post, field, value)
 
@@ -49,5 +51,7 @@ def update_post(db: Session, post_id: int, post_update: schemas.PostUpdate, owne
     db.commit()
     db.refresh(db_post)
     return db_post
+
+
 def get_posts(db: Session, skip: int = 0, limit: int = 10):
     return db.query(models.Post).offset(skip).limit(limit).all()
